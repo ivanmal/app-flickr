@@ -1,0 +1,81 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Teste</title>
+		<link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> 
+	</head>
+	<body>
+		<div class="container" id="gallery">
+			<h1>Galeria</h1>
+		</div>
+	
+		<div class="container">
+			<div class="row" id="gallery"></div>
+		</div>
+		
+		<script>
+		
+			function loadPhotos()
+			{
+				var uPhoto = "https://api.flickr.com/services/rest/?method=flickr.photos.getPopular&per_page=6&page=1&format=json&jsoncallback=?&user_id=11241265@N04&api_key=fca192dae50a3cb3a6bdd759623ad923";
+				
+				$.ajax({
+					url: uPhoto,
+					dataType: 'jsonp',
+					success : function(data) {
+						if(data.stat === 'ok')
+						{
+							getPhotos(data);
+						}
+						else {
+							console.log('Problema ao recuperar as fotos');
+						}
+						
+					},
+					error : function(data) {
+						console.log('Problema de conexão');
+					},
+				});
+			}
+		
+			function getPhotos(ph)
+			{
+				 $.each(ph.photos.photo, function(i, photo) {
+					
+					var uSize = "https://api.flickr.com/services/rest/?method=flickr.photos.getSizes&photo_id="+photo.id+"&format=json&jsoncallback=?&api_key=fca192dae50a3cb3a6bdd759623ad923";
+					
+				$.ajax({
+					url: uSize,
+					dataType: 'jsonp',
+					success : function(data) {
+						if(data.stat === 'ok')
+						{							
+							$.each(data.sizes.size, function(i, size){
+								if(size.width == 150) {
+									$("#gallery").append('<div class="col-md-4"><a href="'+size.url+'" target="_blank"><img src="'+size.source+'"/></a></div>'); 
+								}
+							});
+							
+						}
+						else {
+							console.log('Problema ao recuperar a foto');
+						}
+						
+					},
+					error : function(data) {
+						console.log('Foto não encontrada');
+					},
+				});
+					
+					
+				 });
+			}
+		
+			$(function() {
+				loadPhotos();
+			});
+		</script>
+		
+	</body>
+</html>
